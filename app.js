@@ -4,6 +4,7 @@ import conn from "./db.js"
 import cookieParser from "cookie-parser"
 import fileUpload from "express-fileupload"
 import {v2 as cloudinary} from "cloudinary"
+import methodOverride from "method-override"
 import pageRoute from "./routes/pageRoute.js"
 import photoRoute from "./routes/photoRoute.js"
 import userRoute from "./routes/userRoute.js"
@@ -31,6 +32,9 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))//form bodysindeki verileri parse edebilmesi için
 app.use(cookieParser())
 app.use(fileUpload({useTempFiles: true}))
+app.use(methodOverride('_method',{
+    methods: ['POST','GET']
+}))
 //routes
 app.use('*',checkUser)//tüm get metodlarında çalışaceak,use hem get hem post için anlamına geliyor
 app.use('/', pageRoute)

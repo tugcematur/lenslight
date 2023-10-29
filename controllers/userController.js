@@ -8,38 +8,38 @@ import Photo from "../models/photoModel.js"
 const createUser = async (req, res) => {
     try {
         const user = await User.create(req.body)//taglrdeki name ile db deki sütunlar aynı olmalı
-      //  let error1={"name":"tugce"}
+        //  let error1={"name":"tugce"}
         // res.status(201).json({
         //     succeded: true,
         //     user
         // })
 
-       // res.redirect('/login')
-       //res.status(201).json(error1) //farkı anlamak için yazdım
-       res.status(201).json({user:user._id})
+        // res.redirect('/login')
+        //res.status(201).json(error1) //farkı anlamak için yazdım
+        res.status(201).json({ user: user._id })
     }
     catch (error) {
 
-        console.log("ERROR",error)
+        console.log("ERROR", error)
         let errors2 = {}
 
 
-        if(error.code === 11000){
+        if (error.code === 11000) {
             errors2.email = "The email already registered"
         }
-        
+
         if (error.name === "ValidationError") {
             Object.keys(error.errors).forEach(key => {
                 errors2[key] = error.errors[key].message
             })
-           }
+        }
 
         // res.status(500).json({
         //     succeded: false,
         //     error
         // })
-    console.log("ERRORS2:", errors2)
-    res.status(400).json(errors2 )
+        console.log("ERRORS2:", errors2)
+        res.status(400).json(errors2)
 
     }
 }
@@ -101,11 +101,13 @@ const createToken = (userId) => {
 }
 
 const getDashboardPage = async (req, res) => {
-  
- const photos = await Photo.find({user:res.locals.user._id}) 
+
+    const photos = await Photo.find({ user: res.locals.user._id })
+    const user = await User.findById({ _id: res.locals.user._id }).populate(["followings", "followers"])
     res.render('dashboard', {
         link: "dashboard",
-        photos
+        photos,
+        user
     })
 }
 
@@ -121,16 +123,16 @@ const getLogout = (req, res) => {
 
 
 
-const getAllUsers= async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
-                                     //not equal
-        const users= await User.find({ _id:{$ne: res.locals.user._id }})
-        
+        //not equal
+        const users = await User.find({ _id: { $ne: res.locals.user._id } })
 
-        res.status(200).render('users',{
-          users,
-            link:"users"
-        
+
+        res.status(200).render('users', {
+            users,
+            link: "users"
+
         })
 
     } catch (error) {
@@ -144,14 +146,21 @@ const getAllUsers= async (req, res) => {
 const getUser = async (req, res) => {
     try {
 
-        const user = await User.findById({_id:req.params.id})
-        const photos = await Photo.find({user: res.locals.user._id})
-        res.status(200).render('user',{
+
+        const user = await User.findById({ _id: req.params.id })
+
+        const infollowers = user.followers.some((follower) => {
+            return follower.equals(res.locals.user._id)
+        })
+
+        const photos = await Photo.find({ user: user._id })
+        res.status(200).render('user', {
             user,
             photos,
-            link:"users"
-            
-        
+            link: "users",
+            infollowers
+
+
         })
 
     } catch (error) {
@@ -160,7 +169,100 @@ const getUser = async (req, res) => {
             error
         })
     }
-} 
+}
 
 
-export { createUser, loginUser, getDashboardPage, getLogout,getAllUsers ,getUser}
+const follow = async (req, res) => {
+    try {
+
+        let user = await User.findByIdAndUpdate(
+            { _id: req.params.id },
+            { $push: { followers: res.locals.user._id } },
+            { new: true } //??
+
+
+        )
+
+        user = await User.findByIdAndUpdate(
+            { _id: res.locals.user._id },
+            {
+                $push: { followings: req.params.id }
+            },
+            { new: true } //güncellenmiş hali dön
+        )
+
+
+
+
+        // res.status(200).render('user',{
+        //     user,
+        //     photos,
+        //     link:"users"
+
+
+        // })
+        // res.status(200).json({
+        //     succeded: true,
+        //     user
+        // })
+
+
+        res.status(200).redirect(`/users/${req.params.id}`)
+
+    } catch (error) {
+        res.status(500).json({
+            succeded: false,
+            error
+        })
+    }
+}
+
+
+const unfollow = async (req, res) => {
+    try {
+
+        let user = await User.findByIdAndUpdate(
+            { _id: req.params.id },
+            { $pull: { followers: res.locals.user._id } },
+            { new: true } //??
+
+
+        )
+
+        user = await User.findByIdAndUpdate(
+            { _id: res.locals.user._id },
+            {
+                $pull: { followings: req.params.id }
+            },
+            { new: true } //güncellenmiş hali dön
+        )
+
+
+
+        // res.status(200).render('user',{
+        //     user,
+        //     photos,
+        //     link:"users"
+
+
+        // })
+
+        // res.status(200).json({
+        //     succeded: true,
+        //     user
+        // })
+
+
+        res.status(200).redirect(`/users/${req.params.id}`)
+
+    } catch (error) {
+        res.status(500).json({
+            succeded: false,
+            error
+        })
+    }
+}
+
+
+
+export { createUser, loginUser, getDashboardPage, getLogout, getAllUsers, getUser, follow, unfollow }
