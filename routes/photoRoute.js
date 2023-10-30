@@ -9,8 +9,9 @@ router
     .post(photoController.createPhoto)
     .get(photoController.getAllPhotos)
     
-router
-     .route('/:id').get(photoController.getPhoto)    
+router.route('/:id').get(photoController.getPhoto) 
+router.route('/:id').delete(photoController.deletePhoto)
+router.route('/:id').put(photoController.updatePhoto)       
 
 export default router
 

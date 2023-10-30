@@ -8,7 +8,8 @@ const photoSchema = new Schema({
     description:{type:String,required:true,trim:true},
     uploadedAt:{type:Date,default:Date.now},
     user:{type:Schema.Types.ObjectId,ref:"User"},
-    url:{type:String,required:true}
+    url:{type:String,required:true},
+    image_id:{type:String}
 
 })
 

@@ -112,15 +112,6 @@ const getDashboardPage = async (req, res) => {
 }
 
 
-const getLogout = (req, res) => {
-
-    res.cookie("jwt", '', {
-        maxAge: 1
-    })
-
-    res.redirect('/')
-}
-
 
 
 const getAllUsers = async (req, res) => {
@@ -265,4 +256,4 @@ const unfollow = async (req, res) => {
 
 
 
-export { createUser, loginUser, getDashboardPage, getLogout, getAllUsers, getUser, follow, unfollow }
+export { createUser, loginUser, getDashboardPage,  getAllUsers, getUser, follow, unfollow }
