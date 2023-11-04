@@ -51,7 +51,6 @@ bcrypt.hash(user.password,10,(err, hash) => {
     });
 })
 
-//Photo modeli
  const User = mongoose.model("User",userSchema)
 
  export default User;
