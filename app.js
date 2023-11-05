@@ -36,7 +36,7 @@ app.use(methodOverride('_method',{
     methods: ['POST','GET']
 }))
 //routes
-app.use('*',checkUser)//tüm get metodlarında çalışaceak,use hem get hem post için anlamına geliyor
+app.get('*',checkUser)//tüm get metodlarında çalışaceak,use hem get hem post için anlamına geliyor
 app.use('/', pageRoute)
 app.use('/photos', photoRoute)
 app.use('/users', userRoute)
